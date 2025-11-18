@@ -1,7 +1,6 @@
 import os
 from PyPDF2 import PdfReader
 from docx import Document
-from typing import Optional, Union
 
 def _extract_text_from_pdf(file_path: str) -> str:
     try:
@@ -58,7 +57,7 @@ def read_document(file_path: str) -> str:
         return f"Error: Tipo de archivo '{file_extension}' no soportado por el asistente. Solo soporta PDF, DOCX y TXT."
 
 
-""" # --- EJEMPLO DE USO ---
+# --- EJEMPLO DE USO ---
 if __name__ == '__main__':
     
     # 1. Prueba de un archivo PDF
@@ -76,4 +75,4 @@ if __name__ == '__main__':
     # 3. Prueba de archivo inexistente
     inexistente_path = r"C:\archivo_que_no_existe.pdf"
     print("\n--- LEYENDO INEXISTENTE ---")
-    print(read_document(inexistente_path)) """
+    print(read_document(inexistente_path))
