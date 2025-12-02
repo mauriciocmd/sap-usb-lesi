@@ -121,7 +121,7 @@ def train_model():
     joblib.dump(pipeline, MODEL_PATH)
     print(">>> [PLN] Guardado.")
 
-def initialize():
+def initialize_pln_model():
     global nlp, intent_classifier
     if nlp and intent_classifier: return
     try: nlp = spacy.load("es_core_web_sm")
@@ -137,7 +137,7 @@ def initialize():
 
 def process_command(raw_text: str) -> List[Dict]:
     global intent_classifier
-    if not intent_classifier: initialize()
+    if not intent_classifier: initialize_pln_model()
     response_list = []
     
     segments = re.split(r'\b(y|e|además|luego|después)\b', raw_text, flags=re.IGNORECASE)
@@ -161,7 +161,7 @@ def process_command(raw_text: str) -> List[Dict]:
 if __name__ == "__main__":
     print("--- INICIANDO SISTEMA ---")
     train_model()
-    initialize()
+    initialize_pln_model()
     
     input_usuario = "necesito un nuevo documento word, Crimenes de amor que es un resumen para mi amiga y empieza a leer el archivo Tarea 27 que lo tengo en descargas"
     print(f"\nUsuario: '{input_usuario}'\n")
