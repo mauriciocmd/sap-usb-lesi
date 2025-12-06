@@ -1,4 +1,4 @@
-# Módulo de Procesamiendo de Lenguaje Natural pln.py
+# pln.py
 
 import os
 import sys
@@ -11,6 +11,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 
+# Truco de importación
 current_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.dirname(os.path.dirname(current_dir))
 if root_dir not in sys.path: sys.path.append(root_dir)
@@ -30,7 +31,6 @@ nlp: Optional[spacy.Language] = None
 intent_classifier: Optional[Pipeline] = None
 intent_config_cache: Dict[str, Dict] = {}
 
-
 def _load_data_config():
     global intent_config_cache
     texts, labels = [], []
@@ -41,8 +41,12 @@ def _load_data_config():
     with open(TRAINING_DATA_PATH, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
+    print("\n--- DEBUG: CARGANDO DATOS DE ENTRENAMIENTO ---")
     for obj in data['intents']:
         name = obj['name']
+        examples = obj.get('examples', [])
+        print(f"   > Intención encontrada: '{name}' ({len(examples)} ejemplos)")
+        
         patterns = obj.get('patterns', [])
         patterns.sort(key=len, reverse=True)
         
@@ -50,25 +54,18 @@ def _load_data_config():
             "patterns": patterns,
             "rules": obj.get('extraction_rules', [])
         }
-        for ex in obj.get('examples', []):
+        for ex in examples:
             texts.append(ex)
             labels.append(name)
+    print("----------------------------------------------\n")
     return texts, labels
 
-#Motor de extracción
 def _generate_regex_from_pattern(pattern: str) -> str:
-
     regex = re.escape(pattern)
-
     regex = regex.replace(r'\ ', r'\s+')
-    
-    #variable al final
     if re.search(r'\\\{\w+\\\}$', regex):
-        regex = re.sub(r'\\\{(\w+)\\\}$', r'(?P<\1>.+)', regex)
-    
-    #variables intermedias
+        regex = re.sub(r'\\\{(\w+)\\\}', r'(?P<\1>.+)', regex)
     regex = re.sub(r'\\\{(\w+)\\\}', r'(?P<\1>.+?)', regex)
-    
     return regex
 
 def _extract_variables(text: str, intent_name: str) -> Dict[str, Any]:
@@ -77,6 +74,7 @@ def _extract_variables(text: str, intent_name: str) -> Dict[str, Any]:
     rules = config.get("rules", [])
     extracted_data = {}
 
+    # Estrategia 1: Patrones
     for pattern in patterns:
         regex_str = _generate_regex_from_pattern(pattern)
         match = re.search(regex_str, text, re.IGNORECASE)
@@ -84,30 +82,27 @@ def _extract_variables(text: str, intent_name: str) -> Dict[str, Any]:
             raw_data = match.groupdict()
             for k, v in raw_data.items():
                 extracted_data[k] = v.strip()
-            
             for rule in rules:
                 key = rule['entity_key']
                 if key not in extracted_data: extracted_data[key] = None
             return extracted_data
 
+    # Estrategia 2: Fallback por tipo
     for rule in rules:
         key = rule['entity_key']
         dtype = rule['type']
-        
+        # Corrección: soportar "String" o "text"
         if dtype == "number":
             nums = re.findall(r'\b(\d{1,3})\b', text)
             extracted_data[key] = nums[-1] if nums else None
-            
-        elif dtype == "text":
+        elif dtype in ["text", "String"]:
             if "file" in key or "document" in key:
                  match_ext = re.search(r'\b([\w\-\(\)\[\] ]+\.(pdf|docx|txt))\b', text, re.IGNORECASE)
                  extracted_data[key] = match_ext.group(1).strip() if match_ext else None
             else:
                 extracted_data[key] = None
-
     return extracted_data
 
-#Entrenamiento
 def train_model():
     print(">>> [PLN] Entrenando...")
     texts, labels = _load_data_config()
@@ -123,23 +118,30 @@ def train_model():
 
 def initialize_pln_model():
     global nlp, intent_classifier
-    if nlp and intent_classifier: return
+    if nlp and intent_classifier: return True
     try: nlp = spacy.load("es_core_web_sm")
     except: nlp = spacy.blank("es")
     
+    needs_training = False
+    if not os.path.exists(MODEL_PATH):
+        needs_training = True
+    elif os.path.exists(TRAINING_DATA_PATH):
+        if os.path.getmtime(TRAINING_DATA_PATH) > os.path.getmtime(MODEL_PATH):
+            needs_training = True
+
+    if needs_training:
+        train_model()
+    else:
+        _load_data_config()
+
     if os.path.exists(MODEL_PATH):
         intent_classifier = joblib.load(MODEL_PATH)
-        _load_data_config()
-    else:
-        train_model()
-        intent_classifier = joblib.load(MODEL_PATH)
-
+    return True
 
 def process_command(raw_text: str) -> List[Dict]:
     global intent_classifier
     if not intent_classifier: initialize_pln_model()
     response_list = []
-    
     segments = re.split(r'\b(y|e|además|luego|después)\b', raw_text, flags=re.IGNORECASE)
     clean_segments = [s.strip() for s in segments if len(s.strip()) > 2 and s.lower() not in ['y','e','además','luego','después']]
     if not clean_segments: clean_segments = [raw_text]
@@ -148,22 +150,12 @@ def process_command(raw_text: str) -> List[Dict]:
         try:
             pred_intent = intent_classifier.predict([segment])[0]
             variables = _extract_variables(segment, pred_intent)
-            
             dto = CommandDTO(pred_intent, variables)
             response_list.append(dto.to_dict())
-            
         except Exception as e:
             response_list.append(CommandDTO("error", {"detalle": str(e)}).to_dict())
-
     return response_list
 
-# Pruebas
 if __name__ == "__main__":
-    print("--- INICIANDO SISTEMA ---")
     train_model()
     initialize_pln_model()
-    
-    input_usuario = "necesito un nuevo documento word, Crimenes de amor que es un resumen para mi amiga y empieza a leer el archivo Tarea 27 que lo tengo en descargas"
-    print(f"\nUsuario: '{input_usuario}'\n")
-    
-    print(json.dumps(process_command(input_usuario), indent=4, ensure_ascii=False))

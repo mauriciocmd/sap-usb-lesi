@@ -3,6 +3,15 @@
 import sys
 import os
 import time
+import json
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - [%(levelname)s] - %(message)s',
+    datefmt='%H:%M:%S'
+)
+logger = logging.getLogger("AsistenteMain")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 if BASE_DIR not in sys.path:
@@ -10,62 +19,111 @@ if BASE_DIR not in sys.path:
 
 try:
     from services.stt import ear_service
+    from services.tts import speak, initialize_tts_engine
+    from core.pln import process_command, initialize_pln_model
 except ImportError as e:
-    print(f"\nERROR CRÍTICO DE IMPORTACIÓN: {e}")
-    print("Asegúrate de ejecutar desde la raíz del proyecto: python src/main.py")
+    logger.critical(f"Error importando módulos: {e}")
     sys.exit(1)
 
-def main():
-    print("\n==============================================")
-    print("   ASISTENTE VIRTUAL")
-    print("==============================================\n")
-    print(">>> Iniciando...")
-
-    if ear_service.model is None:
-        print("Error: El modelo de voz no se pudo cargar. Revisa la consola.")
-        return
-
-    print("Sistema listo. Entrando en bucle principal.")
+def inicializar_sistema():
+    """Carga recursos pesados al inicio."""
+    logger.info("Iniciando servicios del sistema...")
+    
+    try:
+        initialize_tts_engine()
+        logger.info("Motor TTS: OK")
+    except Exception as e:
+        logger.error(f"Fallo en TTS: {e}")
 
     try:
-        while True:
+        initialize_pln_model()
+        logger.info("Motor PLN: OK")
+    except Exception as e:
+        logger.critical(f"Fallo crítico en PLN: {e}")
+        return False
+
+    if ear_service.model is None:
+        logger.critical("Motor STT: Fallo (Modelo no encontrado)")
+        return False
+    logger.info("Motor STT: OK")
+
+    return True
+
+def procesar_entrada_usuario(texto_usuario: str):
+    """Envía el texto al cerebro y gestiona la respuesta."""
+    if not texto_usuario:
+        return
+
+    logger.info(f"Procesando entrada: '{texto_usuario}'")
+
+    try:
+        resultados = process_command(texto_usuario)
+        
+        if not resultados:
+            logger.warning("PLN no devolvió resultados.")
+            return
+
+        json_output = json.dumps(resultados, indent=4, ensure_ascii=False)
+        print("\n--- RESULTADO DEL PLN ---")
+        print(json_output)
+        print("-------------------------\n")
+
+        comando_principal = resultados[0]
+        intent = comando_principal.get('comando')
+        
+        if intent == "error":
+            logger.warning(f"Error interno en PLN: {comando_principal.get('variables')}")
+        
+        elif intent == "desconocido" or intent is None:
+            logger.info("Comando no reconocido en el entrenamiento.")
+            
+        else:
+            logger.info(f"Intención detectada: {intent}")
+
+    except Exception as e:
+        logger.error(f"Error procesando comando: {e}")
+
+def main():
+    if not inicializar_sistema():
+        logger.critical("No se pudo iniciar el sistema. Cerrando.")
+        return
+
+    speak("Sistema en línea y listo.")
+    logger.info("--- BUCLE PRINCIPAL INICIADO ---")
+
+    while True:
+        try:
             despierto, comando_inicial = ear_service.wait_for_wake_word()
 
             if despierto:
-                print("\n[MAIN] ¡DESPERTADO!")
+                logger.info("¡Wake Word detectada!")
                 
-                if not comando_inicial:
-                    print("[SIMULACIÓN TTS] 'Hola, estoy escuchando.'")
+                if comando_inicial:
+                    logger.info(f"Comando rápido: {comando_inicial}")
+                    procesar_entrada_usuario(comando_inicial)
+                
                 else:
-                    print(f"[MAIN] Comando Rápido Detectado: '{comando_inicial}'")
-                    print(f"   -> Enviando al Cerebro: {comando_inicial}")
+                    speak("Dime.")
                     
-                while True:
-                    texto_usuario = ear_service.listen_active(silence_limit=120)
-                    
-                    if texto_usuario:
-                        print(f"[MAIN] Recibido del STT: '{texto_usuario}'")
+                    while True:
+                        texto = ear_service.listen_active(silence_limit=120)
                         
-                        print(f"   -> Enviando al Cerebro (PLN)...")
-                        
-                        if "adiós" in texto_usuario or "apagar" in texto_usuario:
-                            print("[SIMULACIÓN TTS] 'Hasta luego.'")
-                            break
+                        if texto:
+                            procesar_entrada_usuario(texto)
                             
-                    else:
-                        print("[MAIN] Timeout por inactividad.")
-                        print("[SIMULACIÓN TTS] 'Hasta luego.'")
-                        break
+                            if "adiós" in texto or "suspender asistente" in texto:
+                                speak("Hasta luego.")
+                                break
+                        else:
+                            logger.info("Tiempo de espera agotado. Volviendo a reposo.")
+                            break
 
-            else:
-                print("[MAIN] Reiniciando ciclo de escucha...")
-                time.sleep(1)
+        except KeyboardInterrupt:
+            logger.info("Apagado manual por usuario.")
+            break
+        except Exception as e:
+            logger.error(f"Error en bucle principal: {e}")
+            time.sleep(1)
 
-    except KeyboardInterrupt:
-        print("\n\n[MAIN] Sistema apagado manualmente por el usuario.")
-        sys.exit(0)
-    except Exception as e:
-        print(f"\n[MAIN] Error no controlado: {e}")
-        
 if __name__ == "__main__":
     main()
