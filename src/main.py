@@ -115,12 +115,6 @@ def main():
                             if intencion == "crear_word":
                                 mod_office.word_session.start_session()
                         
-                        elif modulo == "os_control":
-                            if intencion == "consultar_hora":
-                                speak_main(mod_system.get_time())
-                            elif intencion == "ajustar_volumen":
-                                speak_main(mod_system.set_volume(cmd['variables'].get('level')))
-
                         elif modulo == "interaction":
                             if intencion == "despedida":
                                 speak_main("Adiós.")
@@ -131,6 +125,9 @@ def main():
                         
                         elif modulo == "web_search":
                             mod_web.execute_module(cmd, deps)
+                        
+                        elif modulo == "os_control":
+                            mod_system.execute_module(cmd, deps)
 
                         elif modulo == "unknown":
                             speak_main("No te entendí.")

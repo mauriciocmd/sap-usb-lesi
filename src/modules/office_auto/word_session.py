@@ -3,6 +3,7 @@
 import os
 import re
 import comtypes.client
+import keyboard
 from docx import Document
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -34,7 +35,7 @@ class WordSession:
     def start_session(self, initial_filename: str = None) -> str:
         self.doc = Document()
         self.is_active = True
-        self._speak_local("Editor listo. Di 'Título', 'Párrafo', 'Oración' o 'Dictado'.")
+        self._speak_local("Editor listo. Di 'Título', 'Párrafo', 'Oración', 'Dictado' o 'Salir'.")
 
     def _normalize_punctuation(self, text: str) -> str:
         text = text.replace("\r", "").replace("\n", " ").strip()
@@ -131,9 +132,21 @@ class WordSession:
             self._speak_local("Error al guardar.")
 
     def process_dictation(self, text: str):
+        if keyboard.is_pressed('esc') or keyboard.is_pressed('ctrl'):
+            self.is_active = False
+            self.doc = None
+            self._speak_local("Edición cancelada por teclado.")
+            return
+
         if not self.is_active: return
 
         text_lower = text.lower().strip()
+
+        if text_lower in ["salir", "cancelar", "cerrar", "abortar", "cancelar documento"]:
+            self.is_active = False
+            self.doc = None
+            self._speak_local("Edición cancelada.")
+            return
 
         if "guardar" in text_lower:
             return self._save_file(text_lower)

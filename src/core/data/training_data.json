@@ -123,18 +123,20 @@
         "nivel {level}"
       ],
       "extraction_rules": [
-        { "entity_key": "level", "type": "number" }
+        { "entity_key": "level", "type": "text" }
       ]
     },
     {
       "name": "consultar_hora",
       "module": "os_control",
-      "examples": [
-        "dime la hora", 
-        "qué hora es", 
-        "tienes la hora", 
-        "hora actual"
-      ],
+      "examples": ["dime la hora", "qué hora es", "hora actual", "tienes la hora"],
+      "patterns": [],
+      "extraction_rules": []
+    },
+    {
+      "name": "consultar_fecha",
+      "module": "os_control",
+      "examples": ["dime la fecha", "qué día es hoy", "fecha de hoy", "en qué día estamos"],
       "patterns": [],
       "extraction_rules": []
     },
