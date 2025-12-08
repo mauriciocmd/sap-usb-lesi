@@ -7,6 +7,10 @@ import logging
 import time
 import pyttsx3
 import pythoncom
+import modules.os_control.file_reader as mod_file_reader
+import modules.office_auto.word_session as mod_office
+import modules.os_control.system_ops as mod_system
+import modules.web_navigator.web_search as mod_web
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%H:%M:%S')
 logger = logging.getLogger("Main")
@@ -124,6 +128,9 @@ def main():
                                 break 
                             else:
                                 speak_main("Hola, estoy aquí.")
+                        
+                        elif modulo == "web_search":
+                            mod_web.execute_module(cmd, deps)
 
                         elif modulo == "unknown":
                             speak_main("No te entendí.")

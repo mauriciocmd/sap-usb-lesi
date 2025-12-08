@@ -166,6 +166,75 @@
       ],
       "patterns": [],
       "extraction_rules": []
+    },
+    {
+      "name": "seleccionar_web",
+      "description": "Selecciona resultado de Google",
+      "module": "web_search",
+      "examples": [
+        "opción uno",
+        "opción dos",
+        "la opción tres",
+        "la número uno",
+        "entra a la primera",
+        "selecciona la segunda",
+        "abrir la opción cuatro",
+        "quiero la uno",
+        "elijo la opción dos",
+        "ver la primera opción",
+        "entra al resultado uno",
+        "la uno",
+        "la dos",
+        "la tres"
+      ],
+      "patterns": [
+        "opción {selection}",
+        "la número {selection}",
+        "la {selection}",
+        "selecciona la {selection}",
+        "entra a la {selection}"
+      ],
+      "extraction_rules": [
+        { "entity_key": "selection", "type": "text" }
+      ]
+    },
+    {
+      "name": "investigar_web",
+      "description": "Busca en Google (Soporta búsquedas de archivos)",
+      "module": "web_search",
+      "examples": [
+        "investigar sobre la segunda guerra mundial pdf",
+        "busca en internet qué es la fotosíntesis pdf",
+        "buscar en google historia de bolivia",
+        "necesito información sobre python",
+        "búscame sobre los derechos humanos",
+        "investigar biografía de simón bolívar",
+        "busca sobre el cambio climático",
+        "investiga qué es la inteligencia artificial",
+        "quiero buscar en internet sobre biología pdf",
+        "investigar la guerra del chaco en pdf",
+        "búscame documentos pdf sobre la célula",
+        "investigar sobre la tabla periódica pdf",
+        "buscar libro de matemáticas en pdf",
+        "investigar leyes de newton documento",
+        "busca en la web sobre anatomía word",
+        "investigar pdf sobre historia universal",
+        "buscar en internet pdf de programación"
+      ],
+      "patterns": [
+        "investigar sobre {query}",
+        "investigar sobre {query}",
+        "buscar pdf de {query}",
+        "investigar {query}",
+        "busca en internet {query}",
+        "buscar en google {query}",
+        "búscame sobre {query}",
+        "investiga qué es {query}",
+        "busca sobre {query}"
+      ],
+      "extraction_rules": [
+        { "entity_key": "query", "type": "text" }
+      ]
     }
   ]
 }

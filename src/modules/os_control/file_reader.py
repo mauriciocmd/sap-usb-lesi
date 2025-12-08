@@ -5,8 +5,8 @@ import difflib
 import re
 import pyttsx3
 import pythoncom
-import msvcrt
 import time
+import keyboard
 from docx import Document
 from PyPDF2 import PdfReader
 
@@ -25,8 +25,7 @@ def _speak_interruptible(text):
 
         def onWord(name, location, length):
             nonlocal was_cancelled
-            if msvcrt.kbhit():
-                msvcrt.getch()
+            if keyboard.is_pressed('ctrl') or keyboard.is_pressed('esc'):
                 was_cancelled = True
                 engine.stop()
 
@@ -34,7 +33,7 @@ def _speak_interruptible(text):
 
         clean_text = text.replace('\n', ' ').replace('\r', '')
         
-        print("   [READER] Leyendo... (Presiona tecla para cancelar)")
+        print("   [READER] Leyendo... (Presiona CTRL o ESC para cancelar)")
         engine.say(clean_text)
         engine.runAndWait()
         
@@ -53,6 +52,10 @@ def _extract_text(path):
     try:
         if ext == '.pdf':
             reader = PdfReader(path)
+            if reader.is_encrypted:
+                try: reader.decrypt('')
+                except: pass
+            
             for page in reader.pages:
                 t = page.extract_text()
                 if t: text += t + " "
@@ -84,7 +87,6 @@ def _get_target_path(folder_name):
 def find_file_strict(filename_query, search_path):
     print(f"   [DEBUG] Buscando '{filename_query}' en '{search_path}'")
     if not filename_query or not os.path.exists(search_path): return None
-    
     try:
         valid_exts = ('.pdf', '.docx', '.txt')
         files = [f for f in os.listdir(search_path) if f.lower().endswith(valid_exts)]
@@ -131,12 +133,10 @@ def execute_module(dto, dependencies):
                 system_speak("El archivo está vacío.")
                 return
 
-            system_speak(f"Leyendo {nombre}. Presione cualquier tecla para cancelar la lectura.")
+            system_speak(f"Leyendo {nombre}. Presione CONTROL o ESCAPE para detener.")
             
-            time.sleep(3) 
+            time.sleep(3)
 
-            while msvcrt.kbhit(): msvcrt.getch()
-            
             fue_cancelado = _speak_interruptible(contenido)
 
             if fue_cancelado:
