@@ -2,94 +2,36 @@
 
 import sys
 import os
-import time
 import json
 import logging
+import time
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - [%(levelname)s] - %(message)s',
-    datefmt='%H:%M:%S'
-)
-logger = logging.getLogger("AsistenteMain")
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%H:%M:%S')
+logger = logging.getLogger("Main")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-if BASE_DIR not in sys.path:
-    sys.path.append(BASE_DIR)
+if BASE_DIR not in sys.path: sys.path.append(BASE_DIR)
 
 try:
     from services.stt import ear_service
     from services.tts import speak, initialize_tts_engine
     from core.pln import process_command, initialize_pln_model
+    
+    import modules.os_control.file_reader as mod_file_reader
+    import modules.office_auto.word_session as mod_office
+    import modules.os_control.system_ops as mod_system
+    
 except ImportError as e:
-    logger.critical(f"Error importando módulos: {e}")
+    logger.critical(f"Error imports: {e}")
     sys.exit(1)
 
-def inicializar_sistema():
-    """Carga recursos pesados al inicio."""
-    logger.info("Iniciando servicios del sistema...")
-    
-    try:
-        initialize_tts_engine()
-        logger.info("Motor TTS: OK")
-    except Exception as e:
-        logger.error(f"Fallo en TTS: {e}")
-
-    try:
-        initialize_pln_model()
-        logger.info("Motor PLN: OK")
-    except Exception as e:
-        logger.critical(f"Fallo crítico en PLN: {e}")
-        return False
-
-    if ear_service.model is None:
-        logger.critical("Motor STT: Fallo (Modelo no encontrado)")
-        return False
-    logger.info("Motor STT: OK")
-
-    return True
-
-def procesar_entrada_usuario(texto_usuario: str):
-    """Envía el texto al cerebro y gestiona la respuesta."""
-    if not texto_usuario:
-        return
-
-    logger.info(f"Procesando entrada: '{texto_usuario}'")
-
-    try:
-        resultados = process_command(texto_usuario)
-        
-        if not resultados:
-            logger.warning("PLN no devolvió resultados.")
-            return
-
-        json_output = json.dumps(resultados, indent=4, ensure_ascii=False)
-        print("\n--- RESULTADO DEL PLN ---")
-        print(json_output)
-        print("-------------------------\n")
-
-        comando_principal = resultados[0]
-        intent = comando_principal.get('comando')
-        
-        if intent == "error":
-            logger.warning(f"Error interno en PLN: {comando_principal.get('variables')}")
-        
-        elif intent == "desconocido" or intent is None:
-            logger.info("Comando no reconocido en el entrenamiento.")
-            
-        else:
-            logger.info(f"Intención detectada: {intent}")
-
-    except Exception as e:
-        logger.error(f"Error procesando comando: {e}")
-
 def main():
-    if not inicializar_sistema():
-        logger.critical("No se pudo iniciar el sistema. Cerrando.")
-        return
+    initialize_tts_engine()
+    if not initialize_pln_model(): return
 
-    speak("Sistema en línea y listo.")
-    logger.info("--- BUCLE PRINCIPAL INICIADO ---")
+    deps = {"tts": speak, "stt": ear_service}
+    
+    print("\n--- SISTEMA LISTO ---")
 
     while True:
         try:
@@ -99,30 +41,72 @@ def main():
                 logger.info("¡Wake Word detectada!")
                 
                 if comando_inicial:
-                    logger.info(f"Comando rápido: {comando_inicial}")
-                    procesar_entrada_usuario(comando_inicial)
-                
+                    texto_a_procesar = comando_inicial
+                    logger.info(f"Comando rápido: {texto_a_procesar}")
                 else:
                     speak("Dime.")
-                    
-                    while True:
-                        texto = ear_service.listen_active(silence_limit=120)
+                    texto_a_procesar = None
+
+                while True:
+                    if not texto_a_procesar:
+                        texto = ear_service.listen(timeout=100)
                         
-                        if texto:
-                            procesar_entrada_usuario(texto)
-                            
-                            if "adiós" in texto or "suspender asistente" in texto:
-                                speak("Hasta luego.")
-                                break
-                        else:
+                        if not texto:
                             logger.info("Tiempo de espera agotado. Volviendo a reposo.")
-                            break
+                            speak("Hasta luego.") 
+                            break 
+                    else:
+                        texto = texto_a_procesar
+                        texto_a_procesar = None 
+
+                    print(f"🗣️: {texto}")
+                    
+                    if mod_office.word_session.is_active:
+                        if "guardar" in texto:
+                            speak(mod_office.word_session.process_dictation(texto))
+                        else:
+                            speak(mod_office.word_session.process_dictation(texto))
+                        continue
+
+                    resultados = process_command(texto)
+                    
+                    for cmd in resultados:
+                        modulo = cmd.get('modulo')
+                        logger.info(f"Routing a: {modulo}")
+
+                        if modulo == "file_reader":
+                            mod_file_reader.execute_module(cmd, deps)
+                        
+                        elif modulo == "office_auto":
+                            if cmd['comando'] == "crear_word":
+                                name = cmd['variables'].get('new_file_name')
+                                speak(mod_office.word_session.start_session(name))
+                        
+                        elif modulo == "os_control":
+                            if cmd['comando'] == "consultar_hora":
+                                speak(mod_system.get_time())
+                            elif cmd['comando'] == "ajustar_volumen":
+                                speak(mod_system.set_volume(cmd['variables'].get('level')))
+
+                        elif modulo == "interaction":
+                            if cmd['comando'] == "despedida":
+                                speak("Adiós.")
+                                texto_a_procesar = None 
+                                break 
+                            else:
+                                speak("Hola.")
+
+                        elif modulo == "unknown":
+                            speak("No entendí.")
+                    
+                    if "despedida" in [c.get('comando') for c in resultados]:
+                        break
 
         except KeyboardInterrupt:
-            logger.info("Apagado manual por usuario.")
+            logger.info("Apagado manual.")
             break
         except Exception as e:
-            logger.error(f"Error en bucle principal: {e}")
+            logger.error(f"Error Main: {e}")
             time.sleep(1)
 
 if __name__ == "__main__":

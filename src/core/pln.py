@@ -11,7 +11,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 
-# Truco de importación
 current_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.dirname(os.path.dirname(current_dir))
 if root_dir not in sys.path: sys.path.append(root_dir)
@@ -22,8 +21,17 @@ except ImportError:
     sys.path.append(os.path.join(current_dir, '..', '..'))
     from src.core.dtos import CommandDTO
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, 'data')
+def get_base_path():
+    if getattr(sys, 'frozen', False):
+        return sys._MEIPASS
+    return os.path.dirname(os.path.abspath(__file__))
+
+BASE_DIR = get_base_path()
+if getattr(sys, 'frozen', False):
+    DATA_DIR = os.path.join(BASE_DIR, "src", "core", "data")
+else:
+    DATA_DIR = os.path.join(BASE_DIR, "data")
+
 MODEL_PATH = os.path.join(DATA_DIR, 'intent_classifier.pkl')
 TRAINING_DATA_PATH = os.path.join(DATA_DIR, 'training_data.json')
 
@@ -41,23 +49,19 @@ def _load_data_config():
     with open(TRAINING_DATA_PATH, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    print("\n--- DEBUG: CARGANDO DATOS DE ENTRENAMIENTO ---")
     for obj in data['intents']:
         name = obj['name']
-        examples = obj.get('examples', [])
-        print(f"   > Intención encontrada: '{name}' ({len(examples)} ejemplos)")
-        
         patterns = obj.get('patterns', [])
         patterns.sort(key=len, reverse=True)
         
         intent_config_cache[name] = {
             "patterns": patterns,
-            "rules": obj.get('extraction_rules', [])
+            "rules": obj.get('extraction_rules', []),
+            "module": obj.get('module', 'unknown') 
         }
-        for ex in examples:
+        for ex in obj.get('examples', []):
             texts.append(ex)
             labels.append(name)
-    print("----------------------------------------------\n")
     return texts, labels
 
 def _generate_regex_from_pattern(pattern: str) -> str:
@@ -74,7 +78,6 @@ def _extract_variables(text: str, intent_name: str) -> Dict[str, Any]:
     rules = config.get("rules", [])
     extracted_data = {}
 
-    # Estrategia 1: Patrones
     for pattern in patterns:
         regex_str = _generate_regex_from_pattern(pattern)
         match = re.search(regex_str, text, re.IGNORECASE)
@@ -87,15 +90,14 @@ def _extract_variables(text: str, intent_name: str) -> Dict[str, Any]:
                 if key not in extracted_data: extracted_data[key] = None
             return extracted_data
 
-    # Estrategia 2: Fallback por tipo
+    # Estrategia 2: Fallback
     for rule in rules:
         key = rule['entity_key']
         dtype = rule['type']
-        # Corrección: soportar "String" o "text"
         if dtype == "number":
             nums = re.findall(r'\b(\d{1,3})\b', text)
             extracted_data[key] = nums[-1] if nums else None
-        elif dtype in ["text", "String"]:
+        elif dtype == "text":
             if "file" in key or "document" in key:
                  match_ext = re.search(r'\b([\w\-\(\)\[\] ]+\.(pdf|docx|txt))\b', text, re.IGNORECASE)
                  extracted_data[key] = match_ext.group(1).strip() if match_ext else None
@@ -150,10 +152,14 @@ def process_command(raw_text: str) -> List[Dict]:
         try:
             pred_intent = intent_classifier.predict([segment])[0]
             variables = _extract_variables(segment, pred_intent)
-            dto = CommandDTO(pred_intent, variables)
+            
+            intent_info = intent_config_cache.get(pred_intent, {})
+            module_name = intent_info.get("module", "unknown")
+            
+            dto = CommandDTO(pred_intent, variables, module_name)
             response_list.append(dto.to_dict())
         except Exception as e:
-            response_list.append(CommandDTO("error", {"detalle": str(e)}).to_dict())
+            response_list.append(CommandDTO("error", {"detalle": str(e)}, "error").to_dict())
     return response_list
 
 if __name__ == "__main__":

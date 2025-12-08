@@ -3,12 +3,13 @@
     {
       "name": "crear_word",
       "description": "Crea documentos DOCX",
+      "module": "office_auto",
       "examples": [
         "crea un nuevo archivo de word llamado Crimen de guerra",
         "necesito un nuevo documento word, Crimenes de amor que es un resumen para mi amiga",
-        "Quiero un nuevo archivo word, que se llame Proyecto 3er parcial, porque será para mi tarea",
+        "Quiero un nuevo archivo word, que se llame Proyecto tercer parcial, porque será para mi tarea",
         "crear word Lucha de clases",
-        "nuevo documento de texto Tarea 14",
+        "nuevo documento de texto Tarea catorce",
         "generar word llamado Reporte Final"
       ],
       "patterns": [
@@ -26,30 +27,19 @@
     {
       "name": "leer_documento",
       "description": "Lee archivos PDF o Word",
+      "module": "file_reader",
       "examples": [
-        "empieza a leer el archivo Tarea 27 que lo tengo en descargas",
         "Lee el documento Ciervos de vida que esta en Descargas",
         "Porfa lectura del pdf Amor y odio desde Documentos",
         "El archivo tesis recopilatoria que esta en el escritorio quiero que lo leas en voz alta",
-        "Leer Tarea 14 de Escritorio",
+        "Leer Tarea catorce de Escritorio",
         "leer el archivo word archivoZzz que lo tengo en escritorio",
-        "leer el archivo notas.txt",
-        "reproducir el texto del archivo reglamento.pdf ubicado en mis documentos",
-        "necesito escuchar el contenido de carta_renuncia.docx que está en la carpeta descargas",
-        "haz una lectura del apunte.txt desde el escritorio",
-        "quiero oír el archivo historia.docx de la carpeta documentos",
-        "lee en voz alta el archivo proyecto_final.pdf que guardé en descargas",
-        "revisar el archivo lista.txt en escritorio",
-        "dime qué dice el documento resumen.pdf que está en mis documentos",
-        "busca en descargas el archivo manual.docx y léelo",
-        "quiero que me narres el libro soledad.pdf de la carpeta escritorio",
-        "lectura del archivo notas_reunion.txt almacenado en documentos",
-        "puedes leer apuntes_ciencias de la carpeta descargas",
-        "acceder al texto del archivo contrato_final.docx en escritorio",
-        "vocalizar el contenido de poema.txt que tengo en documentos",
-        "en el escritorio busca el archivo carta.pdf para leer",
-        "procesar lectura del archivo informe_anual desde descargas",
-        "escuchar el reporte de ventas que está en la carpeta documentos"
+        "leer el archivo notas txt",
+        "empieza a leer el archivo Tarea veintisiete que lo tengo en descargas",
+        "leer archivo tesis",
+        "abrir documento carta pdf",
+        "detener lectura",
+        "basta de leer"
       ],
       "patterns": [
         "El archivo {file_name} que esta en el {directory} quiero que lo leas en voz alta",
@@ -59,23 +49,9 @@
         "leer el archivo word {file_name} que lo tengo en {directory}",
         "leer el archivo {file_name}",
         "empieza a leer el archivo {file_name} que lo tengo en {directory}",
-        "reproducir el texto del archivo {file_name} ubicado en mis {directory}",
-        "necesito escuchar el contenido de {file_name} que está en la carpeta {directory}",
-        "haz una lectura del {file_name} desde el {directory}",
-        "quiero oír el archivo {file_name} de la carpeta {directory}",
-        "lee en voz alta el archivo {file_name} que guardé en {directory}",
-        "revisar el archivo {file_name} en {directory}",
-        "leer {file_name} desde {directory}",
-        "dime qué dice el documento {file_name} que está en mis {directory}",
-        "busca en {directory} el archivo {file_name} y léelo",
-        "quiero que me narres el libro {file_name} de la carpeta {directory}",
-        "lectura del archivo {file_name} almacenado en {directory}",
-        "puedes leer {file_name} de la carpeta {directory}",
-        "acceder al texto del archivo {file_name} en {directory}",
-        "vocalizar el contenido de {file_name} que tengo en {directory}",
-        "en el {directory} busca el archivo {file_name} para leer",
-        "procesar lectura del archivo {file_name} desde {directory}",
-        "escuchar el {file_name} que está en la carpeta {directory}"
+        "leer archivo {file_name}",
+        "leer {file_name}",
+        "abrir documento {file_name}"
       ],
       "extraction_rules": [
         { "entity_key": "file_name", "type": "text" },
@@ -83,13 +59,20 @@
       ]
     },
     {
+      "name": "detener_lectura",
+      "module": "file_reader",
+      "examples": ["alto a la lectura", "basta", "detente", "silencio"],
+      "patterns": [],
+      "extraction_rules": []
+    },
+    {
       "name": "ajustar_volumen",
-      "description": "Control de volumen",
+      "module": "os_control",
       "examples": [
-        "pon el volumen al 50",
-        "sube el sonido a 100",
-        "baja el volumen al nivel 20",
-        "volumen a 30"
+        "pon el volumen al cinuenta",
+        "sube el sonido a cien",
+        "baja el volumen al nivel veinte",
+        "volumen a treinta"
       ],
       "patterns": [
         "baja el volumen al nivel {level}",
@@ -99,18 +82,51 @@
         "nivel {level}"
       ],
       "extraction_rules": [
-        { "entity_key": "level", "type": "number" }
+        { "entity_key": "level", "type": "text" }
       ]
     },
     {
+      "name": "consultar_hora",
+      "module": "os_control",
+      "examples": ["dime la hora", "¿qué hora es?"],
+      "patterns": [],
+      "extraction_rules": []
+    },
+    {
       "name": "saludo",
+      "module": "interaction",
       "examples": ["hola asistente", "buenos días", "inicio"],
       "patterns": [],
       "extraction_rules": []
     },
     {
       "name": "despedida",
+      "module": "interaction",
       "examples": ["adiós", "nos vemos", "apagar"],
+      "patterns": [],
+      "extraction_rules": []
+    },
+    {
+      "name": "pausar_lectura",
+      "module": "file_reader",
+      "examples": [
+        "pausa la lectura", 
+        "pon pausa", 
+        "pausar", 
+        "espera un momento"
+      ],
+      "patterns": [],
+      "extraction_rules": []
+    },
+    {
+      "name": "continuar_lectura",
+      "module": "file_reader",
+      "examples": [
+        "continúa la lectura", 
+        "sigue leyendo", 
+        "continuar", 
+        "reanudar"
+      ],
       "patterns": [],
       "extraction_rules": []
     }
