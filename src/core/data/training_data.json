@@ -2,27 +2,45 @@
   "intents": [
     {
       "name": "crear_word",
-      "description": "Crea documentos DOCX",
+      "description": "Inicia el modo de dictado de documentos sin nombre inicial",
       "module": "office_auto",
       "examples": [
-        "crea un nuevo archivo de word llamado Crimen de guerra",
-        "necesito un nuevo documento word, Crimenes de amor que es un resumen para mi amiga",
-        "Quiero un nuevo archivo word, que se llame Proyecto tercer parcial, porque será para mi tarea",
-        "crear word Lucha de clases",
-        "nuevo documento de texto Tarea catorce",
-        "generar word llamado Reporte Final"
+        "crear documento word",
+        "crear nuevo documento",
+        "necesito redactar un nuevo archivo",
+        "iniciar dictado de word",
+        "quiero escribir un documento",
+        "nuevo documento de texto",
+        "abrir editor de texto",
+        "crear archivo de texto",
+        "empezar a escribir",
+        "redactar una carta",
+        "crear un word",
+        "nuevo word",
+        "abrir word",
+        "generar documento",
+        "iniciar redacción",
+        "quiero hacer un informe",
+        "crear nuevo worth",
+        "nuevo documento work",
+        "crear archivo world",
+        "redactar nuevo worth",
+        "crear war",
+        "abrir work",
+        "iniciar worth"
       ],
       "patterns": [
-        "necesito un nuevo documento word, {new_file_name} que es un resumen para mi amiga",
-        "Quiero un nuevo archivo word, que se llame {new_file_name}, porque será para mi tarea",
-        "crea un nuevo archivo de word llamado {new_file_name}",
-        "nuevo documento de texto {new_file_name}",
-        "crear word {new_file_name}",
-        "word llamado {new_file_name}"
+        "crear documento word",
+        "crear nuevo archivo",
+        "iniciar modo dictado",
+        "redactar documento",
+        "nuevo documento",
+        "crear word",
+        "crear worth",
+        "nuevo worth",
+        "abrir word"
       ],
-      "extraction_rules": [
-        { "entity_key": "new_file_name", "type": "text" }
-      ]
+      "extraction_rules": []
     },
     {
       "name": "leer_documento",
@@ -38,8 +56,19 @@
         "empieza a leer el archivo Tarea veintisiete que lo tengo en descargas",
         "leer archivo tesis",
         "abrir documento carta pdf",
-        "detener lectura",
-        "basta de leer"
+        "quiero leer el libro historia",
+        "reproducir el archivo informe",
+        "leeme el documento proyecto final",
+        "escuchar el pdf reglamento",
+        "leer documento que esta en descargas",
+        "busca y lee el archivo apuntes",
+        "lectura del archivo resumen",
+        "necesito escuchar el texto de biologia",
+        "leer archivo manual de usuario",
+        "abrir y leer la carta",
+        "pon el audio del libro",
+        "leer archivo cuentos",
+        "leer documento divina comedia"
       ],
       "patterns": [
         "El archivo {file_name} que esta en el {directory} quiero que lo leas en voz alta",
@@ -61,7 +90,17 @@
     {
       "name": "detener_lectura",
       "module": "file_reader",
-      "examples": ["alto a la lectura", "basta", "detente", "silencio"],
+      "examples": [
+        "alto a la lectura", 
+        "basta", 
+        "detente", 
+        "silencio", 
+        "para de leer",
+        "deja de leer",
+        "stop lectura",
+        "pausa el audio",
+        "callate por favor"
+      ],
       "patterns": [],
       "extraction_rules": []
     },
@@ -69,10 +108,12 @@
       "name": "ajustar_volumen",
       "module": "os_control",
       "examples": [
-        "pon el volumen al cinuenta",
+        "pon el volumen al cincuenta",
         "sube el sonido a cien",
         "baja el volumen al nivel veinte",
-        "volumen a treinta"
+        "volumen a treinta",
+        "cambiar volumen a diez",
+        "ajustar audio al ochenta"
       ],
       "patterns": [
         "baja el volumen al nivel {level}",
@@ -82,50 +123,46 @@
         "nivel {level}"
       ],
       "extraction_rules": [
-        { "entity_key": "level", "type": "text" }
+        { "entity_key": "level", "type": "number" }
       ]
     },
     {
       "name": "consultar_hora",
       "module": "os_control",
-      "examples": ["dime la hora", "¿qué hora es?"],
+      "examples": [
+        "dime la hora", 
+        "qué hora es", 
+        "tienes la hora", 
+        "hora actual"
+      ],
       "patterns": [],
       "extraction_rules": []
     },
     {
       "name": "saludo",
       "module": "interaction",
-      "examples": ["hola asistente", "buenos días", "inicio"],
+      "examples": [
+        "hola asistente", 
+        "buenos días", 
+        "inicio", 
+        "hola", 
+        "buenas tardes"
+      ],
       "patterns": [],
       "extraction_rules": []
     },
     {
       "name": "despedida",
       "module": "interaction",
-      "examples": ["adiós", "nos vemos", "apagar"],
-      "patterns": [],
-      "extraction_rules": []
-    },
-    {
-      "name": "pausar_lectura",
-      "module": "file_reader",
       "examples": [
-        "pausa la lectura", 
-        "pon pausa", 
-        "pausar", 
-        "espera un momento"
-      ],
-      "patterns": [],
-      "extraction_rules": []
-    },
-    {
-      "name": "continuar_lectura",
-      "module": "file_reader",
-      "examples": [
-        "continúa la lectura", 
-        "sigue leyendo", 
-        "continuar", 
-        "reanudar"
+        "adiós", 
+        "nos vemos", 
+        "apagar", 
+        "cerrar sistema", 
+        "hasta luego", 
+        "chao", 
+        "suspender",
+        "ir a dormir"
       ],
       "patterns": [],
       "extraction_rules": []

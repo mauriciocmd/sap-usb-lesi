@@ -4,6 +4,7 @@ from typing import Optional
 engine: Optional[pyttsx3.Engine] = None
 
 def _setup_engine():
+    """Configuración interna del motor con recuperación."""
     global engine
     try:
         engine = pyttsx3.init()
@@ -49,7 +50,3 @@ def speak(text: str) -> bool:
             return True
         except:
             return False
-
-if __name__ == '__main__':
-    initialize_tts_engine()
-    speak("Prueba de audio robusta.")

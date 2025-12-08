@@ -90,7 +90,6 @@ def _extract_variables(text: str, intent_name: str) -> Dict[str, Any]:
                 if key not in extracted_data: extracted_data[key] = None
             return extracted_data
 
-    # Estrategia 2: Fallback
     for rule in rules:
         key = rule['entity_key']
         dtype = rule['type']

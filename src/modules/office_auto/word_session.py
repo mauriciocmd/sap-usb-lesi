@@ -2,7 +2,7 @@
 
 import os
 import re
-import threading
+import comtypes.client
 from docx import Document
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -13,143 +13,158 @@ class WordSession:
         self.is_active = False
         self.download_path = os.path.join(os.path.expanduser("~"), "Downloads")
 
+    def _speak_local(self, text):
+        try:
+            import pyttsx3, pythoncom
+            pythoncom.CoInitialize()
+            engine = pyttsx3.init("sapi5")
+            engine.setProperty('rate', 150)
+            voices = engine.getProperty('voices')
+            for v in voices:
+                if "spanish" in v.name.lower() or "español" in v.name.lower():
+                    engine.setProperty('voice', v.id)
+                    break
+            engine.say(text)
+            engine.runAndWait()
+        except: pass
+        finally:
+            try: pythoncom.CoUninitialize()
+            except: pass
+
     def start_session(self, initial_filename: str = None) -> str:
         self.doc = Document()
         self.is_active = True
+        self._speak_local("Editor listo. Di 'Título', 'Párrafo', 'Oración' o 'Dictado'.")
+
+    def _normalize_punctuation(self, text: str) -> str:
+        text = text.replace("\r", "").replace("\n", " ").strip()
+        rules = [
+            (r"\s+\bpunto y coma\b", ";"), (r"\s+\bdos puntos\b", ":"),
+            (r"\s+\bcoma\b", ","), (r"\s+\bpunto\b", "."),
+            (r"\s+\babre interrogación\b", " ¿"), (r"\s+\bcierra interrogación\b", "?"),
+            (r"\s+\babre paréntesis\b", " ("), (r"\s+\bcierra paréntesis\b", ")"),
+            (r"\s+\bcomillas\b", '"')
+        ]
+        for pattern, replacement in rules:
+            text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
         
-        msg = "Editor de Word iniciado. Puedes dictar títulos, párrafos u oraciones."
-        if initial_filename:
-            msg += f" (Archivo pre-nombrado: {initial_filename})"
-        return msg
+        text = text.strip()
+        if text: text = text[0].upper() + text[1:]
+        return text
 
-    def _clean_filename(self, text: str) -> str:
-        text = re.sub(r'\s+en\s+(pdf|word|docx)$', '', text, flags=re.IGNORECASE)
-        clean = re.sub(r'[<>:"/\\|?*]', '', text)
-        return clean.strip()
+    def _add_styled_paragraph(self, text, style_type):
+        if not self.doc or not text: return
+        
+        clean_text = self._normalize_punctuation(text)
+        
+        if style_type in ["parrafo", "oracion"]:
+            if not clean_text.endswith((".", "?", "!", ":", ";", '"')):
+                clean_text += "."
 
-    def process_dictation(self, text: str) -> str:
-
-        if not self.is_active or not self.doc:
-            return "No hay sesión activa. Primero di 'Crear Word'."
-
-        text_lower = text.lower()
-
-        if "guardar documento" in text_lower:
-            match = re.search(r'guardar documento con el nombre\s+(.+)', text_lower)
-            if match:
-                raw_name = match.group(1)
-                filename = self._clean_filename(raw_name)
-                # Ejecutamos el guardado
-                return self._save_file(filename)
+        if style_type == "oracion":
+            if len(self.doc.paragraphs) > 0:
+                p = self.doc.paragraphs[-1]
+                prev_text = p.text.strip()
+                if prev_text and not prev_text.endswith(" "):
+                     p.add_run(" ")
+                p.add_run(clean_text)
             else:
-                return "Entendí guardar, pero no escuché el nombre. Di: 'Guardar documento con el nombre X'"
+                self._create_paragraph(clean_text, 12, False, "JUSTIFY")
+            return
 
-        if text_lower.startswith("título") or text_lower.startswith("titulo"):
-            content = text[6:].strip()
-            self._add_formatted_paragraph(content, size=16, bold=True, align="CENTER")
-            return f"Título agregado."
+        if style_type == "titulo": self._create_paragraph(clean_text, 16, True, "CENTER")
+        elif style_type == "subtitulo": self._create_paragraph(clean_text, 14, True, "LEFT")
+        else: self._create_paragraph(clean_text, 12, False, "JUSTIFY")
 
-        elif text_lower.startswith("subtítulo") or text_lower.startswith("subtitulo"):
-            content = text[9:].strip()
-            self._add_formatted_paragraph(content, size=14, bold=True, align="LEFT")
-            return f"Subtítulo agregado."
-
-        elif text_lower.startswith("párrafo") or text_lower.startswith("parrafo"):
-            content = text[7:].strip()
-            self._add_formatted_paragraph(content, size=12, bold=False, align="JUSTIFY")
-            return "Párrafo agregado."
-
-        elif text_lower.startswith("oración") or text_lower.startswith("oracion"):
-            content = text[7:].strip()
-            self._append_to_last_paragraph(content)
-            return "Oración añadida."
-
-        else:
-            self._add_formatted_paragraph(text, size=12, bold=False, align="JUSTIFY")
-            return "Texto agregado."
-
-    def _add_formatted_paragraph(self, text, size, bold, align):
-        if not text: return
-        
-        text = self._normalize_punctuation(text)
-        
+    def _create_paragraph(self, text, size, bold, align):
         p = self.doc.add_paragraph()
         run = p.add_run(text)
-        
         run.font.size = Pt(size)
         run.bold = bold
-        
         if align == "CENTER": p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         elif align == "LEFT": p.alignment = WD_ALIGN_PARAGRAPH.LEFT
         elif align == "JUSTIFY": p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
-    def _append_to_last_paragraph(self, text):
-        if not text: return
-        text = self._normalize_punctuation(text)
-        
-        if len(self.doc.paragraphs) > 0:
-            p = self.doc.paragraphs[-1]
-            p.add_run(" " + text)
-        else:
-            self._add_formatted_paragraph(text, 12, False, "LEFT")
-
-    def _normalize_punctuation(self, text):
-        replacements = {
-            " coma": ",", " punto": ".", " dos puntos": ":", 
-            " abre interrogación": "¿", " cierra interrogación": "?"
-        }
-        for k, v in replacements.items():
-            text = text.replace(k, v)
-        return text[0].upper() + text[1:] if text else text
-
-    def _save_file_thread(self, full_path, doc_ref):
+    def _convert_to_pdf(self, docx_path, pdf_path):
         try:
-            doc_ref.save(full_path)
-            print(f">>> [THREAD] Archivo guardado: {full_path}")
+            import comtypes.gen
+            word_app = comtypes.client.CreateObject('Word.Application')
+            word_app.Visible = False
+            doc = word_app.Documents.Open(docx_path)
+            doc.SaveAs(pdf_path, FileFormat=17)
+            doc.Close()
+            word_app.Quit()
+            return True
+        except: return False
+
+    def _save_file(self, raw_input):
+        format_type = "pdf" if "pdf" in raw_input.lower() else "docx"
+        
+        temp_name = raw_input.lower()
+        remove_list = ["guardar documento", "guardar archivo", "guardar el documento",
+                       "con el nombre", "llamado", "titulado", "como",
+                       "en pdf", "formato pdf", "pdf", "en word"]
+        
+        for phrase in remove_list:
+            temp_name = temp_name.replace(phrase, "")
+        
+        clean_name = re.sub(r'[<>:"/\\|?*]', '', temp_name).strip().capitalize()
+        if not clean_name: clean_name = "Documento_Generado"
+        
+        docx_path = os.path.join(self.download_path, f"{clean_name}.docx")
+        
+        try:
+            self.doc.save(docx_path)
+            msg = f"Guardado {clean_name}."
+            
+            if format_type == "pdf":
+                pdf_path = os.path.join(self.download_path, f"{clean_name}.pdf")
+                success = self._convert_to_pdf(docx_path, pdf_path)
+                if success: msg += " PDF creado."
+                else: msg += " Solo DOCX."
+
+            self.is_active = False
+            self.doc = None
+            self._speak_local(msg)
+
         except Exception as e:
-            print(f">>> [THREAD] Error al guardar: {e}")
+            self._speak_local("Error al guardar.")
 
-    def _save_file(self, filename):
-        full_path = os.path.join(self.download_path, f"{filename}.docx")
-        
-        doc_to_save = self.doc
-        
-        self.is_active = False 
-        self.doc = None
-        
-        save_thread = threading.Thread(target=self._save_file_thread, args=(full_path, doc_to_save))
-        save_thread.start()
-        
-        return f"Guardando documento {filename}.docx en Descargas..."
+    def process_dictation(self, text: str):
+        if not self.is_active: return
 
-# Instancia Global
+        text_lower = text.lower().strip()
+
+        if "guardar" in text_lower:
+            return self._save_file(text_lower)
+
+        parts = text.split(' ', 1)
+        if len(parts) < 2: return 
+
+        content = parts[1]
+        
+        if text_lower.startswith(("título", "titulo")):
+            self._add_styled_paragraph(content, "titulo")
+            self._speak_local("Título.")
+
+        elif text_lower.startswith(("subtítulo", "subtitulo")):
+            self._add_styled_paragraph(content, "subtitulo")
+            self._speak_local("Subtítulo.")
+
+        elif text_lower.startswith(("párrafo", "parrafo")):
+            self._add_styled_paragraph(content, "parrafo")
+            self._speak_local("Párrafo.")
+            
+        elif text_lower.startswith(("oración", "oracion", "frase")):
+            self._add_styled_paragraph(content, "oracion")
+            self._speak_local("Punto seguido.")
+
+        elif text_lower.startswith(("dictado", "escribir")):
+            self._add_styled_paragraph(content, "parrafo")
+            self._speak_local("Escrito.")
+
+        else:
+            print(f"   [WORD IGNORADO] '{text}'")
+            return 
+
 word_session = WordSession()
-
-# ZONA DE PRUEBAS AUTOMÁTICAS
-if __name__ == "__main__":
-    print("\n--- PRUEBA INTERNA DEL MÓDULO DE OFIMÁTICA ---")
-    
-    print(f"1. Inicio: {word_session.start_session()}")
-    
-    comandos = [
-        "Titulo la tumba de las luciernagas",
-        "subtitulo capitulo 1",
-        "Parrafo no estaba listo para lo que venía pues siempre quise estar cerca coma pero no pude punto",
-        "Oracion No todo era lo que parece",
-        "Esto es una frase suelta que se escribirá como párrafo normal",
-        "guardar documento con el nombre Pesar del niño en pdf"
-    ]
-    
-    for cmd in comandos:
-        print(f"\n🎤 Input: '{cmd}'")
-        respuesta = word_session.process_dictation(cmd)
-        print(f"Output: {respuesta}")
-    
-    import time
-    time.sleep(1) 
-    
-    ruta_final = os.path.join(os.path.expanduser("~"), "Downloads", "Pesar del niño.docx")
-    if os.path.exists(ruta_final):
-        print(f"\nÉXITO: El archivo fue creado en: {ruta_final}")
-    else:
-        print(f"\nERROR: No se encontró el archivo (Puede que el hilo siga guardando).")
