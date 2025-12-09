@@ -34,6 +34,9 @@ def _speak_interruptible(text):
         clean_text = text.replace('\n', ' ').replace('\r', '')
         
         print("   [READER] Leyendo... (Presiona CTRL o ESC para cancelar)")
+        
+        time.sleep(1) 
+        
         engine.say(clean_text)
         engine.runAndWait()
         

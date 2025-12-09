@@ -7,16 +7,37 @@ import logging
 import time
 import pyttsx3
 import pythoncom
-import modules.os_control.file_reader as mod_file_reader
-import modules.office_auto.word_session as mod_office
-import modules.os_control.system_ops as mod_system
-import modules.web_navigator.web_search as mod_web
+from datetime import datetime
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%H:%M:%S')
-logger = logging.getLogger("Main")
+if getattr(sys, 'frozen', False):
+    BASE_DIR = sys._MEIPASS
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 if BASE_DIR not in sys.path: sys.path.append(BASE_DIR)
+
+user_docs = os.path.join(os.path.expanduser("~"), "Documents")
+log_folder = os.path.join(user_docs, "Registros_Lesi")
+
+if not os.path.exists(log_folder):
+    try:
+        os.makedirs(log_folder)
+    except: pass
+
+log_filename = f"Lesi_Log_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt"
+log_path = os.path.join(log_folder, log_filename)
+
+handlers_list = [logging.StreamHandler(sys.stdout)]
+if os.path.exists(log_folder):
+    handlers_list.append(logging.FileHandler(log_path, encoding='utf-8'))
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(message)s',
+    datefmt='%H:%M:%S',
+    handlers=handlers_list
+)
+logger = logging.getLogger("Main")
 
 try:
     from services.stt import ear_service
@@ -25,20 +46,16 @@ try:
     import modules.os_control.file_reader as mod_file_reader
     import modules.office_auto.word_session as mod_office
     import modules.os_control.system_ops as mod_system
+    import modules.web_navigator.web_search as mod_web
 except ImportError as e:
-    logger.critical(f"Error imports: {e}")
+    logger.critical(f"Error CRÍTICO de imports: {e}")
+    time.sleep(5) 
     sys.exit(1)
 
 def speak_main(text: str):
-    """
-    Motor de voz exclusivo del Main.
-    Crea una instancia, habla y se destruye para liberar el recurso.
-    """
     if not text: return
-
     try:
         pythoncom.CoInitialize()
-        
         engine = pyttsx3.init("sapi5")
         engine.setProperty('rate', 150)
         engine.setProperty('volume', 1.0)
@@ -60,14 +77,12 @@ def speak_main(text: str):
         except: pass
 
 def main():
-    if not initialize_pln_model(): return
+    logger.info("Iniciando sistema...")
+    if not initialize_pln_model(): 
+        logger.error("Fallo al inicializar PLN")
+        return
 
-    deps = {
-        "tts": speak_main, 
-        "stt": ear_service
-    }
-
-    #speak_main("Sistema listo y modularizado.")
+    deps = { "tts": speak_main, "stt": ear_service }
 
     while True:
         try:
@@ -92,6 +107,7 @@ def main():
                         texto_a_procesar = None
 
                     print(f"🗣️: {texto}")
+                    logger.info(f"Usuario dijo: {texto}")
 
                     if mod_office.word_session.is_active:
                         if "guardar" in texto or "cerrar" in texto:
@@ -106,7 +122,7 @@ def main():
                     for cmd in resultados:
                         modulo = cmd.get('modulo')
                         intencion = cmd.get('comando')
-                        logger.info(f"Routing a: {modulo}")
+                        logger.info(f"Routing a: {modulo} -> {intencion}")
 
                         if modulo == "file_reader":
                             mod_file_reader.execute_module(cmd, deps)
@@ -139,7 +155,7 @@ def main():
             logger.info("Apagado manual.")
             break
         except Exception as e:
-            logger.error(f"Error Main: {e}")
+            logger.error(f"Error Main Loop: {e}")
             time.sleep(1)
 
 if __name__ == "__main__":

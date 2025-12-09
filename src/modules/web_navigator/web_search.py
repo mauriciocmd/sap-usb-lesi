@@ -26,27 +26,32 @@ class WebSession:
         try:
             pythoncom.CoInitialize()
             engine = pyttsx3.init("sapi5")
-            engine.setProperty('rate', 160)
+            engine.setProperty('rate', 155)
+            
             voices = engine.getProperty('voices')
             for v in voices:
                 if "spanish" in v.name.lower():
                     engine.setProperty('voice', v.id)
                     break
-            
+
             def onWord(name, location, length):
                 nonlocal was_cancelled
-                if keyboard.is_pressed('ctrl') or keyboard.is_pressed('esc'):
+                if keyboard.is_pressed('ctrl'):
                     was_cancelled = True
                     engine.stop()
-            
+
             engine.connect('started-word', onWord)
-            
+
             clean = text.replace('\n', ' ').strip()
             if clean:
-                print("   [WEB READER] Leyendo... (CTRL/ESC para parar)")
+                print("   [WEB READER] Leyendo... (CTRL para parar)")
+                
+                time.sleep(1)
+                
                 engine.say(clean)
                 engine.runAndWait()
-        except: pass
+        except Exception as e:
+            print(f"   [TTS ERROR] {e}")
         finally:
             try: pythoncom.CoUninitialize()
             except: pass
