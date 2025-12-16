@@ -237,6 +237,74 @@
       "extraction_rules": [
         { "entity_key": "query", "type": "text" }
       ]
+    },
+    {
+      "name": "abrir_teams",
+      "description": "Abre Microsoft Teams y lista equipos",
+      "module": "teams_manager",
+      "examples": [
+        "abrir microsoft teams",
+        "entrar a teams",
+        "ver mis equipos",
+        "iniciar teams",
+        "quiero ver mis clases en teams",
+        "abrir times"
+      ],
+      "patterns": [
+        "abrir teams", "entrar a teams", "iniciar teams", "abrir times"
+      ],
+      "extraction_rules": []
+    },
+    {
+      "name": "entrar_equipo",
+      "description": "Entra a un equipo específico",
+      "module": "teams_manager",
+      "examples": [
+        "entrar al equipo de matemáticas",
+        "ve al grupo proyecto final",
+        "abrir equipo ciencias",
+        "entrar a la clase de historia"
+      ],
+      "patterns": [
+        "entrar al equipo {team_name}",
+        "entrar a la clase {team_name}",
+        "abrir equipo {team_name}",
+        "ir al equipo {team_name}"
+      ],
+      "extraction_rules": [{ "entity_key": "team_name", "type": "text" }]
+    },
+    {
+      "name": "descargar_archivo_teams",
+      "description": "Descarga archivo de Teams",
+      "module": "teams_manager",
+      "examples": [
+        "descargar el archivo tarea uno",
+        "baja el documento manual de usuario",
+        "descargar guia de laboratorio",
+        "quiero descargar el pdf notas"
+      ],
+      "patterns": [
+        "descargar el archivo {file_name}",
+        "descargar {file_name}",
+        "baja el documento {file_name}"
+      ],
+      "extraction_rules": [{ "entity_key": "file_name", "type": "text" }]
+    },
+    {
+      "name": "subir_archivo_teams",
+      "description": "Sube archivo local a Teams",
+      "module": "teams_manager",
+      "examples": [
+        "subir archivo tarea final",
+        "cargar documento foto carnet",
+        "subir el pdf proyecto a teams"
+      ],
+      "patterns": [
+        "subir archivo {file_name}",
+        "cargar documento {file_name}",
+        "subir {file_name} a teams"
+      ],
+      "extraction_rules": [{ "entity_key": "file_name", "type": "text" }]
     }
   ]
 }

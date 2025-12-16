@@ -8,6 +8,7 @@ import time
 import pyttsx3
 import pythoncom
 from datetime import datetime
+import modules.web_navigator.teams_manager as mod_teams
 
 if getattr(sys, 'frozen', False):
     BASE_DIR = sys._MEIPASS
@@ -115,6 +116,13 @@ def main():
                         else:
                             mod_office.word_session.process_dictation(texto)
                         continue
+                    
+                    # --- B. MODO TEAMS (Prioridad 2 - NUEVO BLOQUEO) ---
+                    if mod_teams.teams_manager.is_active:
+                        # Enviamos todo el texto directamente al gestor de Teams
+                        # Él tiene su propio mini-cerebro (Regex) para entender
+                        mod_teams.teams_manager.process_dictation(texto)
+                        continue # Salta el PLN (¡Esto evita que se abra Word!)
 
                     resultados = process_command(texto)
                     should_sleep = False 
@@ -141,6 +149,9 @@ def main():
                         
                         elif modulo == "web_search":
                             mod_web.execute_module(cmd, deps)
+                            
+                        elif modulo == "teams_manager":
+                            mod_teams.execute_module(cmd, deps)
                         
                         elif modulo == "os_control":
                             mod_system.execute_module(cmd, deps)
