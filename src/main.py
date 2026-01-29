@@ -117,12 +117,9 @@ def main():
                             mod_office.word_session.process_dictation(texto)
                         continue
                     
-                    # --- B. MODO TEAMS (Prioridad 2 - NUEVO BLOQUEO) ---
                     if mod_teams.teams_manager.is_active:
-                        # Enviamos todo el texto directamente al gestor de Teams
-                        # Él tiene su propio mini-cerebro (Regex) para entender
                         mod_teams.teams_manager.process_dictation(texto)
-                        continue # Salta el PLN (¡Esto evita que se abra Word!)
+                        continue
 
                     resultados = process_command(texto)
                     should_sleep = False 

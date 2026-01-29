@@ -164,3 +164,4 @@ def process_command(raw_text: str) -> List[Dict]:
 if __name__ == "__main__":
     train_model()
     initialize_pln_model()
+    
