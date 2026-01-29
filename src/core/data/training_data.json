@@ -1,44 +1,72 @@
 {
   "intents": [
     {
+      "name": "no_entendido",
+      "description": "Clase de rechazo para ruido y comandos invalidos",
+      "module": "unknown",
+      "examples": [
+        "martins", "tíos", "tios", "abrir tíos", "abrir dios", 
+        "blablabla", "cualquier cosa", "no sé", "ehhh", "mmm", 
+        "ruido de fondo", "tos", "estornudo", "sonido", 
+        "comida", "tengo hambre", "que hora es el partido", 
+        "me gusta el futbol", "perro", "gato", "casa", 
+        "computadora", "teclado", "mouse", "pantalla", 
+        "abrir puerta", "encender luz", "apagar luz", 
+        "llamar a mamá", "contar un chiste", "quien eres", 
+        "como te llamas", "eres inteligente", "color favorito", 
+        "musica", "reproducir musica", "video", "youtube", 
+        "facebook", "whatsapp", "instagram", "tiktok", 
+        "clima", "tiempo", "temperatura", "llover", 
+        "sol", "luna", "estrellas", "cielo", 
+        "rojo", "azul", "verde", "amarillo", 
+        "uno", "dos", "tres", "cuatro", "cinco", 
+        "a b c d e", "texto aleatorio", "palabra sin sentido", 
+        "error", "fallo", "bug", "codigo", 
+        "python", "java", "c++", "javascript", 
+        "no te entiendo", "repite", "otra vez", 
+        "mas despacio", "mas rapido", "volumen alto", 
+        "martes", "miercoles", "jueves", "viernes", 
+        "enero", "febrero", "marzo", "abril", 
+        "hola que tal", "como estas", "bien y tu", 
+        "que haces", "nada", "aburrido", "cansado",
+        "entrada del equipo", "les y", "entrada", "salvador", "nicolas"
+      ],
+      "patterns": [],
+      "extraction_rules": []
+    },
+    {
       "name": "crear_word",
-      "description": "Inicia el modo de dictado de documentos sin nombre inicial",
+      "description": "Inicia el modo de dictado de documentos",
       "module": "office_auto",
       "examples": [
-        "crear documento word",
-        "crear nuevo documento",
-        "necesito redactar un nuevo archivo",
-        "iniciar dictado de word",
-        "quiero escribir un documento",
-        "nuevo documento de texto",
-        "abrir editor de texto",
-        "crear archivo de texto",
-        "empezar a escribir",
-        "redactar una carta",
-        "crear un word",
-        "nuevo word",
-        "abrir word",
-        "generar documento",
-        "iniciar redacción",
-        "quiero hacer un informe",
-        "crear nuevo worth",
-        "nuevo documento work",
-        "crear archivo world",
-        "redactar nuevo worth",
-        "crear war",
-        "abrir work",
-        "iniciar worth"
+        "crear documento word", "crear nuevo documento", "necesito redactar un nuevo archivo",
+        "iniciar dictado de word", "quiero escribir un documento", "nuevo documento de texto",
+        "abrir editor de texto", "crear archivo de texto", "empezar a escribir",
+        "redactar una carta", "crear un word", "nuevo word", "abrir word",
+        "generar documento", "iniciar redacción", "quiero hacer un informe",
+        "crear nuevo worth", "nuevo documento work", "crear archivo world",
+        "redactar nuevo worth", "crear war", "abrir work", "iniciar worth",
+        "abrir aplicación de escritura", "necesito tipear algo", "hoja en blanco",
+        "documento en blanco", "nuevo archivo de word", "lanzar word",
+        "ejecutar word", "abrir procesador de texto", "quiero dictar una carta",
+        "modo redacción", "empezar dictado", "nuevo informe", "crear tarea",
+        "hacer un resumen", "escribir nota", "redactar oficio",
+        "crear carta", "abrir microsoft word", "iniciar microsoft word",
+        "nuevo doc", "crear docx", "abrir programa de escribir",
+        "quiero anotar algo", "tomar apuntes", "crear apunte",
+        "nueva hoja", "empezar a redactar", "escribir en word",
+        "dictar a word", "mandar a word", "poner en word",
+        "redacción de texto", "editor de palabras", "crear un escrito",
+        "generar un texto", "elaborar documento", "hacer un trabajo en word",
+        "necesito el word", "ponme el word", "sácame el word",
+        "activa el dictado", "comenzar a escribir", "vamos a escribir",
+        "redactar documento nuevo", "crear archivo doc", "abrir la hoja",
+        "word nuevo", "documento vacío", "archivo vacío"
       ],
       "patterns": [
-        "crear documento word",
-        "crear nuevo archivo",
-        "iniciar modo dictado",
-        "redactar documento",
-        "nuevo documento",
-        "crear word",
-        "crear worth",
-        "nuevo worth",
-        "abrir word"
+        "crear documento word", "crear nuevo archivo", "iniciar modo dictado",
+        "redactar documento", "nuevo documento", "crear word", "crear worth",
+        "nuevo worth", "abrir word"
       ],
       "extraction_rules": []
     },
@@ -49,26 +77,34 @@
       "examples": [
         "Lee el documento Ciervos de vida que esta en Descargas",
         "Porfa lectura del pdf Amor y odio desde Documentos",
-        "El archivo tesis recopilatoria que esta en el escritorio quiero que lo leas en voz alta",
+        "El archivo tesis recopilatoria quiero que lo leas",
         "Leer Tarea catorce de Escritorio",
-        "leer el archivo word archivoZzz que lo tengo en escritorio",
+        "leer el archivo word archivoZzz",
         "leer el archivo notas txt",
-        "empieza a leer el archivo Tarea veintisiete que lo tengo en descargas",
-        "leer archivo tesis",
-        "abrir documento carta pdf",
-        "quiero leer el libro historia",
-        "reproducir el archivo informe",
-        "leeme el documento proyecto final",
-        "escuchar el pdf reglamento",
-        "leer documento que esta en descargas",
-        "busca y lee el archivo apuntes",
-        "lectura del archivo resumen",
-        "necesito escuchar el texto de biologia",
-        "leer archivo manual de usuario",
-        "abrir y leer la carta",
-        "pon el audio del libro",
-        "leer archivo cuentos",
-        "leer documento divina comedia"
+        "empieza a leer el archivo Tarea veintisiete",
+        "leer archivo tesis", "abrir documento carta pdf",
+        "quiero leer el libro historia", "reproducir el archivo informe",
+        "leeme el documento proyecto final", "escuchar el pdf reglamento",
+        "leer documento que esta en descargas", "busca y lee el archivo apuntes",
+        "lectura del archivo resumen", "necesito escuchar el texto de biologia",
+        "leer archivo manual de usuario", "abrir y leer la carta",
+        "pon el audio del libro", "leer archivo cuentos",
+        "leer documento divina comedia", "léeme el archivo",
+        "reproducir documento", "quiero escuchar el archivo",
+        "lee en voz alta el pdf", "dictame el archivo",
+        "pon a leer el documento", "lee el texto",
+        "oraliza el documento", "narrar archivo",
+        "lectura de voz del archivo", "hazme escuchar el pdf",
+        "leer fichero", "revisar archivo en audio",
+        "leer la tarea", "escuchar el trabajo",
+        "lee lo que dice el archivo", "reproducir texto",
+        "quiero oír el documento", "pon el archivo en audio",
+        "iniciar lectura de archivo", "comenzar a leer archivo",
+        "leer pdf", "leer docx", "leer txt",
+        "analizar y leer archivo", "busca el archivo y léelo",
+        "leer apunte", "leer fotocopia", "leer escaneo",
+        "reproducir la lectura", "activar lectura de archivo",
+        "leer archivo de la carpeta", "leer documento guardado"
       ],
       "patterns": [
         "El archivo {file_name} que esta en el {directory} quiero que lo leas en voz alta",
@@ -80,7 +116,9 @@
         "empieza a leer el archivo {file_name} que lo tengo en {directory}",
         "leer archivo {file_name}",
         "leer {file_name}",
-        "abrir documento {file_name}"
+        "abrir documento {file_name}",
+        "reproducir {file_name}",
+        "escuchar {file_name}"
       ],
       "extraction_rules": [
         { "entity_key": "file_name", "type": "text" },
@@ -91,15 +129,17 @@
       "name": "detener_lectura",
       "module": "file_reader",
       "examples": [
-        "alto a la lectura", 
-        "basta", 
-        "detente", 
-        "silencio", 
-        "para de leer",
-        "deja de leer",
-        "stop lectura",
-        "pausa el audio",
-        "callate por favor"
+        "alto a la lectura", "basta", "detente", "silencio",
+        "para de leer", "deja de leer", "stop lectura",
+        "pausa el audio", "callate por favor", "detener audio",
+        "parar reproducción", "silenciar", "cállate",
+        "no leas más", "fin de la lectura", "terminar lectura",
+        "cortar audio", "pausar voz", "stop voz",
+        "quieto", "shh", "para el asistente",
+        "detener narración", "interrumpir lectura", "cancelar lectura",
+        "ya basta", "suficiente", "ok para",
+        "detenerse", "parar de hablar", "no hables mas",
+        "silencio por favor", "quitar voz", "apagar voz"
       ],
       "patterns": [],
       "extraction_rules": []
@@ -108,19 +148,22 @@
       "name": "ajustar_volumen",
       "module": "os_control",
       "examples": [
-        "pon el volumen al cincuenta",
-        "sube el sonido a cien",
-        "baja el volumen al nivel veinte",
-        "volumen a treinta",
-        "cambiar volumen a diez",
-        "ajustar audio al ochenta"
+        "pon el volumen al cincuenta", "sube el sonido a cien",
+        "baja el volumen al nivel veinte", "volumen a treinta",
+        "cambiar volumen a diez", "ajustar audio al ochenta",
+        "subir volumen", "bajar volumen", "poner audio al maximo",
+        "silenciar volumen", "volumen nivel cinco", "sonido a la mitad",
+        "modificar volumen", "establecer volumen", "volumen al 10",
+        "volumen al 20", "volumen al 30", "volumen al 40",
+        "volumen al 50", "volumen al 60", "volumen al 70",
+        "volumen al 80", "volumen al 90", "volumen al 100",
+        "más volumen", "menos volumen", "audio más fuerte",
+        "audio más bajo", "suena muy fuerte", "suena muy despacio",
+        "ajustar sonido", "nivel de audio", "cambiar nivel de voz"
       ],
       "patterns": [
-        "baja el volumen al nivel {level}",
-        "pon el volumen al {level}",
-        "sube el sonido a {level}",
-        "volumen a {level}",
-        "nivel {level}"
+        "baja el volumen al nivel {level}", "pon el volumen al {level}",
+        "sube el sonido a {level}", "volumen a {level}", "nivel {level}"
       ],
       "extraction_rules": [
         { "entity_key": "level", "type": "text" }
@@ -129,14 +172,28 @@
     {
       "name": "consultar_hora",
       "module": "os_control",
-      "examples": ["dime la hora", "qué hora es", "hora actual", "tienes la hora"],
+      "examples": [
+        "dime la hora", "qué hora es", "hora actual", "tienes la hora",
+        "que hora tienes", "dame la hora", "hora por favor",
+        "en este momento que hora es", "reloj", "consultar hora",
+        "decirme la hora", "a que hora estamos", "son las...",
+        "hora exacta", "tiempo actual", "ver hora",
+        "leer hora", "horario", "que horas son"
+      ],
       "patterns": [],
       "extraction_rules": []
     },
     {
       "name": "consultar_fecha",
       "module": "os_control",
-      "examples": ["dime la fecha", "qué día es hoy", "fecha de hoy", "en qué día estamos"],
+      "examples": [
+        "dime la fecha", "qué día es hoy", "fecha de hoy", "en qué día estamos",
+        "fecha actual", "dia de la semana", "hoy es lunes",
+        "hoy es martes", "a cuantos estamos", "calendario",
+        "consultar fecha", "dame la fecha", "fecha completa",
+        "que fecha es", "mes actual", "año actual",
+        "dia del mes", "saber la fecha", "leer fecha"
+      ],
       "patterns": [],
       "extraction_rules": []
     },
@@ -144,11 +201,11 @@
       "name": "saludo",
       "module": "interaction",
       "examples": [
-        "hola asistente", 
-        "buenos días", 
-        "inicio", 
-        "hola", 
-        "buenas tardes"
+        "hola asistente", "buenos días", "inicio", "hola", "buenas tardes",
+        "buenas noches", "holi", "hola que tal", "saludos",
+        "buen día", "hey asistente", "hola amigo", "iniciar sistema",
+        "despertar", "estás ahí", "hola maquina", "hola computadora",
+        "bienvenido", "hola lesi", "hola bot", "buenas"
       ],
       "patterns": [],
       "extraction_rules": []
@@ -157,154 +214,158 @@
       "name": "despedida",
       "module": "interaction",
       "examples": [
-        "adiós", 
-        "nos vemos", 
-        "apagar", 
-        "cerrar sistema", 
-        "hasta luego", 
-        "chao", 
-        "suspender",
-        "ir a dormir"
+        "adiós", "nos vemos", "apagar", "cerrar sistema", "hasta luego",
+        "chao", "suspender", "ir a dormir", "hasta mañana",
+        "terminar sesión", "finalizar", "apagar asistente",
+        "desconectarse", "salir", "bye", "bye bye",
+        "nos vemos luego", "cerrar todo", "apagar computadora",
+        "descansar", "dormir", "parar sistema", "terminar",
+        "cierra el programa", "vete", "retirarse"
       ],
       "patterns": [],
       "extraction_rules": []
     },
     {
-      "name": "seleccionar_web",
-      "description": "Selecciona resultado de Google",
-      "module": "web_search",
+      "name": "abrir_teams",
+      "module": "teams_manager",
       "examples": [
-        "opción uno",
-        "opción dos",
-        "la opción tres",
-        "la número uno",
-        "entra a la primera",
-        "selecciona la segunda",
-        "abrir la opción cuatro",
-        "quiero la uno",
-        "elijo la opción dos",
-        "ver la primera opción",
-        "entra al resultado uno",
-        "la uno",
-        "la dos",
-        "la tres"
+        "abrir microsoft teams", "entrar a teams", "ver mis equipos",
+        "iniciar teams", "quiero ver mis clases en teams", "abrir times",
+        "abrir tims", "abrir teems", "lanzar teams", "ejecutar teams",
+        "ir a teams", "ver equipos de teams", "mis clases",
+        "mis grupos de teams", "entrar a la plataforma", "abrir plataforma educativa",
+        "quiero entrar a mi clase", "ver materias", "lista de equipos",
+        "mostrar equipos", "acceder a teams", "conectar a teams",
+        "inicia microsoft teams", "arranca teams", "pon el teams",
+        "ver el teams", "chequear teams", "revisar teams",
+        "abrir la aplicación de teams", "ir a mis equipos",
+        "listado de clases", "materias en teams", "abrir team",
+        "iniciar tims", "abrir aplicación teams", "entrar al teams"
       ],
       "patterns": [
-        "opción {selection}",
-        "la número {selection}",
-        "la {selection}",
-        "selecciona la {selection}",
-        "entra a la {selection}"
+        "abrir teams", "entrar a teams", "iniciar teams", "abrir times",
+        "ver mis equipos", "ir a teams"
+      ],
+      "extraction_rules": []
+    },
+    {
+      "name": "entrar_equipo",
+      "module": "teams_manager",
+      "examples": [
+        "entrar al equipo de matemáticas", "ve al grupo proyecto final",
+        "abrir equipo ciencias", "entrar a la clase de historia",
+        "ir al equipo de lenguaje", "acceder al grupo de estudio",
+        "entrar a clase de programación", "abre el equipo de física",
+        "seleccionar equipo biología", "ingresar a química",
+        "quiero entrar a la clase de arte", "ve al equipo de musica",
+        "abrir grupo de trabajo", "entrar en el equipo tesis",
+        "ir a la materia de calculo", "entrar al curso de ingles",
+        "abrir la clase de derecho", "entrar a equipo",
+        "ir a clase", "ver equipo", "entrar al grupo",
+        "acceder a la clase", "selecciona el equipo",
+        "entra a", "ve al equipo", "abre la clase"
+      ],
+      "patterns": [
+        "entrar al equipo {team_name}", "entrar a la clase {team_name}",
+        "abrir equipo {team_name}", "ir al equipo {team_name}",
+        "entrar a {team_name}", "ir a {team_name}"
       ],
       "extraction_rules": [
-        { "entity_key": "selection", "type": "text" }
+        { "entity_key": "team_name", "type": "text" }
+      ]
+    },
+    {
+      "name": "descargar_archivo_teams",
+      "module": "teams_manager",
+      "examples": [
+        "descargar el archivo tarea uno", "baja el documento manual de usuario",
+        "descargar guia de laboratorio", "quiero descargar el pdf notas",
+        "bajar archivo", "descargar documento", "guardar archivo",
+        "bájame la tarea", "descarga el pdf", "bajar la presentación",
+        "descargar word", "bajar excel", "descargar imagen",
+        "guardar el documento en la compu", "obtener archivo",
+        "descargar material", "bajar apunte", "descargar libro",
+        "quiero bajar el archivo", "descargar el fichero",
+        "baja el archivo", "descarga documento", "bajar pdf"
+      ],
+      "patterns": [
+        "descargar el archivo {file_name}", "descargar {file_name}",
+        "baja el documento {file_name}", "bajar {file_name}"
+      ],
+      "extraction_rules": [
+        { "entity_key": "file_name", "type": "text" }
+      ]
+    },
+    {
+      "name": "subir_archivo_teams",
+      "module": "teams_manager",
+      "examples": [
+        "subir archivo tarea final", "cargar documento foto carnet",
+        "subir el pdf proyecto a teams", "enviar archivo",
+        "mandar documento", "subir tarea", "cargar archivo",
+        "adjuntar documento", "subir mi tarea", "cargar pdf",
+        "subir word a teams", "mandar el archivo", "subir documento",
+        "colgar archivo", "publicar archivo", "subir foto",
+        "cargar la tarea", "subir el trabajo práctico",
+        "enviar el documento", "poner el archivo en teams"
+      ],
+      "patterns": [
+        "subir archivo {file_name}", "cargar documento {file_name}",
+        "subir {file_name} a teams", "subir {file_name}"
+      ],
+      "extraction_rules": [
+        { "entity_key": "file_name", "type": "text" }
       ]
     },
     {
       "name": "investigar_web",
-      "description": "Busca en Google (Soporta búsquedas de archivos)",
       "module": "web_search",
       "examples": [
-        "investigar sobre la segunda guerra mundial pdf",
-        "busca en internet qué es la fotosíntesis pdf",
-        "buscar en google historia de bolivia",
-        "necesito información sobre python",
-        "búscame sobre los derechos humanos",
-        "investigar biografía de simón bolívar",
-        "busca sobre el cambio climático",
-        "investiga qué es la inteligencia artificial",
-        "quiero buscar en internet sobre biología pdf",
-        "investigar la guerra del chaco en pdf",
-        "búscame documentos pdf sobre la célula",
-        "investigar sobre la tabla periódica pdf",
-        "buscar libro de matemáticas en pdf",
-        "investigar leyes de newton documento",
-        "busca en la web sobre anatomía word",
-        "investigar pdf sobre historia universal",
-        "buscar en internet pdf de programación"
+        "investigar sobre la segunda guerra mundial pdf", "busca en internet qué es la fotosíntesis pdf",
+        "buscar en google historia de bolivia", "necesito información sobre python",
+        "búscame sobre los derechos humanos", "investigar biografía de simón bolívar",
+        "busca sobre el cambio climático", "investiga qué es la inteligencia artificial",
+        "quiero buscar en internet sobre biología pdf", "investigar la guerra del chaco en pdf",
+        "búscame documentos pdf sobre la célula", "investigar sobre la tabla periódica pdf",
+        "buscar libro de matemáticas en pdf", "investigar leyes de newton documento",
+        "busca en la web sobre anatomía word", "investigar pdf sobre historia universal",
+        "buscar en internet pdf de programación", "googlear sobre animales",
+        "buscar definición de ecosistema", "investigar sobre filosofía",
+        "busca información de geografía", "buscar en la web",
+        "investigar tema", "buscar tarea en google",
+        "quiero saber sobre", "búscame esto", "investiga en internet"
       ],
       "patterns": [
-        "investigar sobre {query}",
-        "investigar sobre {query}",
-        "buscar pdf de {query}",
-        "investigar {query}",
-        "busca en internet {query}",
-        "buscar en google {query}",
-        "búscame sobre {query}",
-        "investiga qué es {query}",
-        "busca sobre {query}"
+        "investigar sobre {query}", "buscar pdf de {query}",
+        "investigar {query}", "busca en internet {query}",
+        "buscar en google {query}", "búscame sobre {query}",
+        "investiga qué es {query}", "busca sobre {query}"
       ],
       "extraction_rules": [
         { "entity_key": "query", "type": "text" }
       ]
     },
     {
-      "name": "abrir_teams",
-      "description": "Abre Microsoft Teams y lista equipos",
-      "module": "teams_manager",
+      "name": "seleccionar_web",
+      "module": "web_search",
       "examples": [
-        "abrir microsoft teams",
-        "entrar a teams",
-        "ver mis equipos",
-        "iniciar teams",
-        "quiero ver mis clases en teams",
-        "abrir times"
+        "opción uno", "opción dos", "la opción tres", "la número uno",
+        "entra a la primera", "selecciona la segunda", "abrir la opción cuatro",
+        "quiero la uno", "elijo la opción dos", "ver la primera opción",
+        "entra al resultado uno", "la uno", "la dos", "la tres",
+        "resultado uno", "resultado dos", "abrir la tres",
+        "seleccionar la uno", "ir a la opción dos", "la primera",
+        "la segunda", "la tercera", "la cuarta", "la quinta",
+        "numero uno", "numero dos", "quiero la opcion tres"
       ],
       "patterns": [
-        "abrir teams", "entrar a teams", "iniciar teams", "abrir times"
+        "opción {selection}", "la número {selection}",
+        "la {selection}", "selecciona la {selection}",
+        "entra a la {selection}"
       ],
-      "extraction_rules": []
-    },
-    {
-      "name": "entrar_equipo",
-      "description": "Entra a un equipo específico",
-      "module": "teams_manager",
-      "examples": [
-        "entrar al equipo de matemáticas",
-        "ve al grupo proyecto final",
-        "abrir equipo ciencias",
-        "entrar a la clase de historia"
-      ],
-      "patterns": [
-        "entrar al equipo {team_name}",
-        "entrar a la clase {team_name}",
-        "abrir equipo {team_name}",
-        "ir al equipo {team_name}"
-      ],
-      "extraction_rules": [{ "entity_key": "team_name", "type": "text" }]
-    },
-    {
-      "name": "descargar_archivo_teams",
-      "description": "Descarga archivo de Teams",
-      "module": "teams_manager",
-      "examples": [
-        "descargar el archivo tarea uno",
-        "baja el documento manual de usuario",
-        "descargar guia de laboratorio",
-        "quiero descargar el pdf notas"
-      ],
-      "patterns": [
-        "descargar el archivo {file_name}",
-        "descargar {file_name}",
-        "baja el documento {file_name}"
-      ],
-      "extraction_rules": [{ "entity_key": "file_name", "type": "text" }]
-    },
-    {
-      "name": "subir_archivo_teams",
-      "description": "Sube archivo local a Teams",
-      "module": "teams_manager",
-      "examples": [
-        "subir archivo tarea final",
-        "cargar documento foto carnet",
-        "subir el pdf proyecto a teams"
-      ],
-      "patterns": [
-        "subir archivo {file_name}",
-        "cargar documento {file_name}",
-        "subir {file_name} a teams"
-      ],
-      "extraction_rules": [{ "entity_key": "file_name", "type": "text" }]
+      "extraction_rules": [
+        { "entity_key": "selection", "type": "text" }
+      ]
     }
   ]
 }
